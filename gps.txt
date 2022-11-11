@@ -1,0 +1,203 @@
+#include <TinyGPS++.h>
+#include <Wire.h>
+#include <SoftwareSerial.h>
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd (0x27,16,2);
+
+SoftwareSerial ss(13, 12);    //R , T
+// The TinyGPS++ object
+TinyGPSPlus gps;
+
+String Altitude;
+String SpeedKnots;
+String late,longe,times,dates;
+String N;
+bool L = false;
+bool A = false;
+bool T = false;
+bool H = false;
+
+void setup() {
+Serial.begin(9600);
+ss.begin(9600);
+delay(5000);
+Wire.begin();
+lcd.begin();
+lcd.clear();
+pinMode(2,INPUT_PULLUP);
+pinMode(3,INPUT_PULLUP);
+pinMode(4,INPUT_PULLUP);
+pinMode(5,INPUT_PULLUP);
+//*******************
+lcd.setCursor(0,0);
+lcd.print("Babak Stars");
+//*******************
+delay(2000);
+}
+
+void loop() {
+  delay(100);
+    while (ss.available() > 0)
+    {
+      if (gps.encode(ss.read()))
+      {
+          displayInfo();
+          LCD();
+      }
+    
+    }   
+}
+//////////////////////////////////////////////////////
+void displayInfo()
+{
+  if (gps.location.isValid())
+  {
+  
+  }
+  else
+  {
+    late = "INVALID";
+    longe = "INVALID";
+  }
+  
+  if (gps.date.isValid())
+  {
+    
+  }
+  else
+  {
+    
+  }
+  if (gps.time.isValid())
+  { 
+    
+  }
+  else
+  { 
+    
+  }
+  
+  if(gps.altitude.isValid())
+  {
+    Altitude = gps.altitude.feet(),1;
+  }
+  else
+  {
+    Altitude = "INV";
+  }
+
+  if(gps.speed.isValid())
+  {
+    SpeedKnots = gps.speed.knots();
+  }
+  else
+  {
+    SpeedKnots = "INV";
+  }
+/*
+  if(gps.satellites.isValid())
+  {
+    Serial.print(gps.course.value(),0);
+    Serial.print(F("*"));
+    N = gps.satellites.value;
+  }
+  else
+  {
+    Serial.print(F("INVALID"));
+    N = "INV";
+  }
+  */
+  delay(500);
+  Serial.println();
+}
+void LCD(){
+  if(digitalRead(2)==LOW || L ==true)
+    {
+      if(L==false)
+      {
+      delay(50);
+      lcd.clear();
+      L=true; A=false; T=false; H=false;
+      }
+      lcd.setCursor(0,0);
+      lcd.print("lat:");
+      lcd.setCursor(0,1);
+      lcd.print("lng:");
+
+      lcd.setCursor(4,0);
+      lcd.print(gps.location.lat(),6);
+      lcd.setCursor(4,1);
+      lcd.print(gps.location.lng(),6);      
+    }
+    if(digitalRead(3)==LOW || A==true)
+    {
+      if(A==false)
+      {
+      delay(50);
+      lcd.clear();
+      L=false; A=true; T=false; H=false;
+      }
+      lcd.setCursor(0,0);
+      lcd.print("Alt:");
+      lcd.setCursor(4,0);
+      lcd.print(Altitude);
+
+      lcd.setCursor(0,1);
+      lcd.print("Speed:");
+      lcd.setCursor(6,1);
+      lcd.print(SpeedKnots);
+      lcd.setCursor(13,1);
+      lcd.print("nm");    
+    }
+    if(digitalRead(4)==LOW || T==true) 
+    {
+      if(T==false)
+      {
+      delay(50);
+      lcd.clear();
+      L=false; A=false; T=true; H=false;
+      }
+      lcd.setCursor(0,0);
+      lcd.print("T ");
+      lcd.setCursor(2,0);
+      lcd.print(gps.time.hour()); 
+      lcd.setCursor(4,0);
+      lcd.print(':');
+      lcd.setCursor(5,0);
+      lcd.print(gps.time.minute()); 
+      lcd.setCursor(7,0);
+      lcd.print(':');
+      lcd.setCursor(8,0);
+      lcd.print(gps.time.second());         
+
+      lcd.setCursor(0,1);
+      lcd.print("D ");
+      lcd.setCursor(2,1);
+      lcd.print(gps.date.month());
+      lcd.setCursor(4,1);
+      lcd.print('/');
+      lcd.setCursor(5,1);
+      lcd.print(gps.date.day());
+      lcd.setCursor(7,1);
+      lcd.print('/');
+      lcd.setCursor(8,1);
+      lcd.print(gps.date.year());
+      //lcd.print(gps.date.month()+'/'+gps.date.day()+'/'+gps.date.year());       
+    }
+
+    if(digitalRead(5)==LOW || H==true) 
+    {
+      if(H==false)
+      {
+      delay(50);
+      lcd.clear();
+      L=false; A=false; T=false; H=true;
+      }
+      lcd.setCursor(0,0);
+      lcd.print("Course: ");     
+      lcd.setCursor(8,0);
+      lcd.print(gps.course.value());
+      lcd.setCursor(0,1);
+      lcd.print(gps.satellites.value());                  
+    }
+}
