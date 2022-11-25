@@ -140,12 +140,12 @@ void LCD(){
       lcd.setCursor(0,0);
       lcd.print("Alt:");
       lcd.setCursor(4,0);
-      lcd.print(Altitude);
+      lcd.print(gps.altitude.feet(),1);
 
       lcd.setCursor(0,1);
       lcd.print("Speed:");
       lcd.setCursor(6,1);
-      lcd.print(SpeedKnots);
+      lcd.print(gps.speed.knots());
       lcd.setCursor(13,1);
       lcd.print("nm");    
     }
